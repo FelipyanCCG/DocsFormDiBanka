@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Components/newForm/index.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Components/newForm/index.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useEffect, useState } from 'react';
+import { Form, Row } from 'react-bootstrap';
+
+/**
+ * Renderiza un campo de formulario basado en las propiedades proporcionadas.
+ *
+ * @param {Object} props - El objeto de propiedades que contiene los datos necesarios para renderizar el campo de formulario.
+ * @param {string} props.type - El tipo de campo de formulario.
+ * @param {string} props.title - El título del campo de formulario.
+ * @param {Array} props.options - Las opciones para el campo de formulario.
+ * @param {string} props.value - El valor actual del campo de formulario.
+ * @param {function} props.onValueChange - La función de devolución de llamada cuando cambia el valor del campo de formulario.
+ * @param {function} props.handleChange - La función de devolución de llamada cuando cambia el campo de formulario.
+ * @param {Object} props.values - El objeto de valores que contiene los valores actuales de todos los campos de formulario.
+ * @param {Object} props.touched - El objeto tocado que indica si se ha tocado un campo de formulario.
+ * @param {Object} props.errors - El objeto de errores que contiene los errores de validación de los campos de formulario.
+ * @param {Object} props.urlData - El objeto de datos que contiene datos adicionales de la URL.
+ * @param {string} props.selectedPagaduria - La pagaduría seleccionada.
+ * @param {string} props.motivoConsulta - El motivo de consulta seleccionado.
+ * @param {function} props.setMotivoConsulta - La función de devolución de llamada para establecer el valor del motivo de consulta.
+ * @param {Array} props.motivoEspecifico - Las opciones de motivo específico.
+ * @param {function} props.setMotivoEspecifico - La función de devolución de llamada para establecer el valor del motivo específico.
+ * @param {Array} props.motivoEspecificoBackup - Las opciones de motivo específico de respaldo.
+ * @param {function} props.setMotivoEspecificoBackup - La función de devolución de llamada para establecer las opciones de motivo específico de respaldo.
+ * @return {JSX.Element} El campo de formulario renderizado.
+ */
+
+const NewForm = (props) => {
+    const {
+        type,
+        title,
+        options,
+        value,
+        onValueChange,
+        handleChange,
+        values,
+        touched,
+        errors,
+        urlData,
+        selectedPagaduria,
+        motivoConsulta,
+        setMotivoConsulta,
+        motivoEspecifico,
+        setMotivoEspecifico,
+        motivoEspecificoBackup,
+        setMotivoEspecificoBackup,
+    } = props;
+
+    useEffect(() => {
+        if (title === 'Motivo Específico') {
+            setMotivoEspecifico(options);
+            setMotivoEspecificoBackup(options);
+        }
+    }, []);
+
+    /**
+     * Maneja el evento de cambio del elemento select.
+     *
+     * @param {Event} e - El objeto de evento.
+     * @return {void} No devuelve ningún valor.
+     */
+
+    const handleSelectChange = (e) => {
+        onValueChange(e.target.value);
+        handleChange(title)(e);
+    };
+
+    /**
+     * Maneja el evento de cambio para el input del motivo.
+     *
+     * @param {Event} e - El objeto de evento de cambio.
+     * @return {void} No devuelve ningún valor.
+     */
+
+    const handleMotivoChange = (e) => {
+        onValueChange(e.target.value);
+        handleChange(title)(e);
+        setMotivoConsulta(e.target.value);
+    };
+
+    /**
+     * Actualiza el array motivoEspecifico basándose en el valor de motivoConsulta seleccionado.
+     *
+     * @param {string} motivoConsulta - El valor del motivo de consulta seleccionado.
+     * @param {array} motivoEspecificoBackup - Las opciones de motivo específico de respaldo.
+     * @return {void} No devuelve nada.
+     */
+
+    useEffect(() => {
+        if (motivoConsulta) {
+            let filterNumber = '';
+            if (motivoConsulta.match(/^\d+/)) {
+                filterNumber = motivoConsulta.match(/^\d+/)[0];
+            }
+            const filteredOptions = motivoEspecificoBackup.filter((opcion) => opcion.startsWith(filterNumber));
+            if (filteredOptions.length === 0) {
+                setMotivoEspecifico(['N/A']);
+            }else{
+                setMotivoEspecifico(filteredOptions);
+            }
+         } 
+    }, [motivoConsulta]);
+
+    /**
+     * Renderiza el componente Motivo.
+     *
+     * @return {JSX.Element} El elemento JSX renderizado.
+     */
+
+    const renderMotivo = () => {
+        return (
+            &lt;div>
+                &lt;Form.Select
+                    name={title}
+                    value={value}
+                    onChange={handleMotivoChange}
+                    isValid={touched[title] &amp;&amp; !errors[title]}
+                >
+                    &lt;option value="">Seleccione&lt;/option>
+                    {options.map((option) => (
+                        &lt;option key={option} value={option}>
+                            {option}
+                        &lt;/option>
+                    ))}
+                &lt;/Form.Select>
+                {touched[title] &amp;&amp; errors[title] &amp;&amp; &lt;div className="text-danger">{errors[title]}&lt;/div>}
+            &lt;/div>
+        );
+    };
+
+    /**
+     * Renderiza un elemento específico.
+     *
+     * @return {JSX.Element} El elemento específico renderizado.
+     */
+
+    const renderEspecifico = () => {
+        return (
+            &lt;div>
+                &lt;Form.Select
+                    name={title}
+                    value={value}
+                    onChange={handleSelectChange}
+                    isValid={touched[title] &amp;&amp; !errors[title]}
+                >
+                    &lt;option value="">Seleccione&lt;/option>
+                    {motivoEspecifico.map((option) => (
+                        &lt;option key={option} value={option}>
+                            {option}
+                        &lt;/option>
+                    ))}
+                &lt;/Form.Select>
+                {touched[title] &amp;&amp; errors[title] &amp;&amp; &lt;div className="text-danger">{errors[title]}&lt;/div>}
+            &lt;/div>
+        );
+    };
+
+      /**
+     * Renderiza un campo de formulario según el tipo y las opciones proporcionadas.
+     *
+     * @return {JSX.Element} El campo de formulario renderizado.
+     */
+
+    const renderFormField = () => {
+        if (type === 'list' &amp;&amp; options) {
+            if (title === 'Motivo Consulta') {
+                return renderMotivo();
+            }
+            if (title === 'Motivo Específico') {
+                return renderEspecifico();
+            }
+            return (
+                &lt;div>
+                    &lt;Form.Select
+                        name={title}
+                        value={value}
+                        onChange={handleSelectChange}
+                        isValid={touched[title] &amp;&amp; !errors[title]}
+                    >
+                        &lt;option value="">Seleccione&lt;/option>
+                        {options.map((option) => (
+                            &lt;option key={option} value={option}>
+                                {option}
+                            &lt;/option>
+                        ))}
+                    &lt;/Form.Select>
+                    {touched[title] &amp;&amp; errors[title] &amp;&amp; &lt;div className="text-danger">{errors[title]}&lt;/div>}
+                &lt;/div>
+            );
+        } else if (type === 'text') {
+            let initialValue = value;
+
+            if (title === 'Numero de Identificación' &amp;&amp; urlData.cedulaCliente) {
+                initialValue = urlData.cedulaCliente;
+            }
+
+            if (title === 'Tipo de Identificación') {
+                initialValue = selectedPagaduria === 'Afiliados' ? 'CEDULA DE CIUDADANIA' : 'NIT';
+            }
+
+            return (
+                &lt;div>
+                    &lt;Form.Control
+                        name={title}
+                        value={initialValue}
+                        onChange={handleSelectChange}
+                        type="text"
+                        placeholder={initialValue || 'Anonymous'}
+                        isValid={touched[title] &amp;&amp; !errors[title]}
+                    />
+                    {touched[title] &amp;&amp; errors[title] &amp;&amp; &lt;div className="text-danger">{errors[title]}&lt;/div>}
+                &lt;/div>
+            );
+        } else if (type === 'textarea') {
+            return (
+                &lt;div>
+                    &lt;Form.Control
+                        name={title}
+                        value={value}
+                        onChange={handleSelectChange}
+                        as="textarea"
+                        rows={3}
+                        placeholder="Message"
+                        isValid={touched[title] &amp;&amp; !errors[title]}
+                    />
+                    {touched[title] &amp;&amp; errors[title] &amp;&amp; &lt;div className="text-danger">{errors[title]}&lt;/div>}
+                &lt;/div>
+            );
+        } else {
+            return (
+                &lt;div>
+                    &lt;Form.Control
+                        name={title}
+                        value={value}
+                        onChange={handleSelectChange}
+                        type="text"
+                        placeholder="Campo de texto predeterminado"
+                        isValid={touched[title] &amp;&amp; !errors[title]}
+                    />
+                    {touched[title] &amp;&amp; errors[title] &amp;&amp; &lt;div className="text-danger">{errors[title]}&lt;/div>}
+                &lt;/div>
+            );
+        }
+    };
+
+    return (
+        &lt;Form.Group as={Row} className="mb-3" controlId={title}>
+            &lt;Form.Label column style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                {title}
+            &lt;/Form.Label>
+            {renderFormField()}
+        &lt;/Form.Group>
+    );
+};
+
+export { NewForm };</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRoutes">AppRoutes</a></li><li><a href="global.html#FormCard">FormCard</a></li><li><a href="global.html#FormDefault">FormDefault</a></li><li><a href="global.html#FormLayout">FormLayout</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#MyModal">MyModal</a></li><li><a href="global.html#NavbarComponent">NavbarComponent</a></li><li><a href="global.html#NewForm">NewForm</a></li><li><a href="global.html#NotFound">NotFound</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#SignIn">SignIn</a></li><li><a href="global.html#send_data">send_data</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Jan 16 2024 10:36:42 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
